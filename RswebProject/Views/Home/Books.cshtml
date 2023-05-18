@@ -1,0 +1,111 @@
+﻿@{
+    ViewData["Title"] = "Books";
+}
+<h2>Books</h2>
+<p><a href="/Home/CreateBook">Create New</a></p>
+<form method="get" action="">
+    <p>
+        Genre: <input type="text" id="bookgenre" name="bookgenre" value="" />
+        Title: <input type="text" id="searchstring" name="searchstring" value="" />
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+
+<table class="table" id="booksTable">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Release Date</th>
+            <th>Genre</th>
+            <th>Price</th>
+            <th>Rating</th>
+            <th>Director</th>
+            <th>Actors</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            searchstring = getQueryVariable('searchstring');
+            bookgenre = getQueryVariable('bookgenre');
+            $("#searchstring").val(searchstring).trigger("change");
+            $("#bookgenre").val(bookgenre).trigger("change");
+            fillTable(searchstring, bookgenre);
+        });
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split('&');
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split('=');
+                if (decodeURIComponent(pair[0]) == variable) { return decodeURIComponent(pair[1]); }
+            }
+        }
+
+        var fillTable = function (searchstring = "", bookgenre = "") {
+            $.ajax({
+                type: "GET",
+                url: "/api/BooksApi?searchstring=" + searchstring + "&bookgenre=" + bookgenre,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(data).each(function () {
+                        var author = null;
+                        var phouse = null;
+                        if (this.authorId != null) {
+                            $.ajax({
+                                type: "GET",
+                                url: "/api/AuthorsApi/" + this.authorId,
+                                dataType: "json",
+                                contentType: "application/json; charset=utf-8",
+                                async: false,
+                                success: function (data) {
+                                    author = data;
+                                }
+                            });
+                        }
+                        var authorstr = author ? author.fullName : "";
+                        $.ajax({
+                            type: "GET",
+                            url: "/api/BooksApi/" + this.id + "/GetPHouses",
+                            dataType: "json",
+                            contentType: "application/json; charset=utf-8",
+                            async: false,
+                            success: function (data) {
+                                phouses = data;
+                            }
+                        });
+                        var phousestr = "";
+                        $(phouse).each(function () { phousestr += this.fullName + "<br/>"; });
+
+                        var datestr = this.releaseDate ? this.releaseDate.substr(0, 10) : "";
+                        var pricestr = this.price ? this.price : "";
+                        var ratingstr = this.rating ? this.rating : "";
+
+                        var rowStr = '<tr>\
+                                                    <td>' + this.title + '</td> \
+                                                    <td>' + datestr + '</td> \
+                                                    <td>' + this.genre + '</td> \
+                                                    <td>' + pricestr + '</td> \
+                                                    <td>' + ratingstr + '</td> \
+                                                    <td>' + authorstr + '</td> \
+                                                    <td>'+ phousestr + '</td> \
+                                                    <td><a href="/Home/EditBook?id=' + this.id + '">Edit</a> | \
+                                                    <a href="/Home/DetailsBook?id=' + this.id + '">Details</a> | \
+                                                    <a href="/Home/DeleteBook?id=' + this.id + '">Delete</a> </td> \
+                                                    </tr>';
+                        $("#moviesTable > tbody").append(rowStr);
+                    });
+                }
+            });
+        }
+    </script>
+}
+

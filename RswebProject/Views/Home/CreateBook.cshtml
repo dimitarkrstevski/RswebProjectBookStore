@@ -1,0 +1,99 @@
+﻿@{
+    ViewData["Title"] = "Create Book";
+}
+
+<h2>Create Book</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form id="formid" method="post">
+            <div class="form-group">
+                <label class="control-label" for="Title">Title</label>
+                <input class="form-control" type="text" data-val="true" data-val-length="The field Title must be a string with a minimum length of 3 and a maximum length of 60." data-val-length-max="60" data-val-length-min="3" data-val-required="The Title field is required." id="Title" name="Title" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="Title" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="ReleaseDate">Release Date</label>
+                <input class="form-control" type="date" id="ReleaseDate" name="ReleaseDate" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="ReleaseDate" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="Genre">Genre</label>
+                <input class="form-control" type="text" data-val="true" data-val-length="The field Genre must be a string with a maximum length of 30." data-val-length-max="30" data-val-regex="The field Genre must match the regular expression &#x27;^[A-Z]&#x2B;[a-zA-Z&quot;&#x27;\s-]*$&#x27;." data-val-regex-pattern="^[A-Z]&#x2B;[a-zA-Z&quot;&#x27;\s-]*$" data-val-required="The Genre field is required." id="Genre" name="Genre" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="Genre" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="Price">Price</label>
+                <input class="form-control" type="text" data-val="true" data-val-number="The field Price must be a number." data-val-range="The field Price must be between 1 and 100." data-val-range-max="100" data-val-range-min="1" id="Price" name="Price" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="Price" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="Rating">Rating</label>
+                <input class="form-control" type="text" data-val="true" data-val-number="The field Rating must be a number." data-val-range="The field Rating must be between 1 and 10." data-val-range-max="10" data-val-range-min="1" id="Rating" name="Rating" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="Rating" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="AuthorId">Author</label>
+                <select class="form-control" id="AuthorId" name="AuthorId">
+                    <option value=''>Select</option>
+                </select>
+            </div>
+        </form>
+        <div class="form-group"> <input type="submit" value="Create" class="btn btn-primary" id="button" /> </div>
+    </div>
+</div>
+
+<div>
+    <a href="/Home/Books">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () { fillAuthors(); });
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split('&');
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split('=');
+                if (decodeURIComponent(pair[0]) == variable) { return decodeURIComponent(pair[1]); }
+            }
+        }
+        var fillAuthors = function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/AuthorsApi",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(data).each(function () {
+                        $("#AuthorId").append('<option value="' + this.id + '">' + this.fullName + '</option>');
+                    });
+                }
+            });
+        }
+        $("#button").click(function () {
+            var formData = {
+                Title: $("#Title").val(),
+                Genre: $("#Genre").val(),
+                ReleaseDate: $("#ReleaseDate").val(),
+                Price: $("#Price").val(),
+                Rating: $("#Rating").val(),
+                AuthorId: $("#AuthorId").val()
+            }
+            formData = JSON.stringify(formData);
+            $.ajax({
+                type: "POST",
+                url: "/api/BooksApi",
+                data: formData,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (result) { window.location.href = "/Home/Books"; },
+                error: function (result) { alert(result.responseText); }
+            });
+        });
+    </script>
+}

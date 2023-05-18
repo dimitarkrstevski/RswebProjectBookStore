@@ -1,0 +1,161 @@
+﻿@{
+    ViewData["Title"] = "Edit Book";
+}
+
+
+<h2>Edit</h2>
+<h4>Book</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form id="formid">
+            <input type="hidden" data-val="true" data-val-required="The Id field is required." id="Book_Id" name="Book.Id" />
+            <div class="form-group">
+                <label class="control-label" for="Book_Title">Title</label>
+                <input class="form-control" type="text" data-val="true" data-val-length="The field Title must be a string with a minimum length of 3 and a maximum length of 60." data-val-length-max="60" data-val-length-min="3" data-val-required="The Title field is required." id="Book_Title" name="Book.Title" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="Book.Title" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="Book_ReleaseDate">Release Date</label>
+                <input class="form-control" type="date" id="Book_ReleaseDate" name="Book.ReleaseDate" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="Book.ReleaseDate" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="Book_Genre">Genre</label>
+                <input class="form-control" type="text" data-val="true" data-val-length="The field Genre must be a string with a maximum length of 30." data-val-length-max="30" data-val-regex="The field Genre must match the regular expression &#x27;^[A-Z]&#x2B;[a-zA-Z&quot;&#x27;\s-]*$&#x27;." data-val-regex-pattern="^[A-Z]&#x2B;[a-zA-Z&quot;&#x27;\s-]*$" data-val-required="The Genre field is required." id="Book_Genre" name="Book.Genre" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="Book.Genre" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="Book_Price">Price</label>
+                <input class="form-control" type="text" data-val="true" data-val-number="The field Price must be a number." data-val-range="The field Price must be between 1 and 100." data-val-range-max="100" data-val-range-min="1" id="Book_Price" name="Book.Price" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="Book.Price" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="Book_Rating">Rating</label>
+                <input class="form-control" type="text" data-val="true" data-val-number="The field Rating must be a number." data-val-range="The field Rating must be between 1 and 10." data-val-range-max="10" data-val-range-min="1" id="Book_Rating" name="Book.Rating" value="" />
+                <span class="text-danger field-validation-valid" data-valmsg-for="Book.Rating" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="Book_AuthorId">Author</label>
+                <select class="form-control" id="Book_AuthorId" name="Book.AuthorId"> <option value="">Select</option> </select>
+                <span class="text-danger field-validation-valid" data-valmsg-for="Book.AuthorId" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">PHouses</label>
+                <select class="form-control js-example-basic-multiple" multiple="multiple" name="SelectedPHouses" id="SelectedPHouses"></select>
+                <span class="text-danger field-validation-valid" data-valmsg-for="SelectedPHouses" data-valmsg-replace="true"></span>
+            </div>
+        </form>
+        <div class="form-group"> <input type="submit" value="Save" class="btn btn-primary" id="button" /> </div>
+    </div>
+</div>
+
+<div>
+    <a href="/Home/Books">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            id = getQueryVariable("id");
+            $("#SelectedPHouses").select2();
+            fillAuthors();
+            fillPHouses();
+            fillBook(id);
+        });
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split('&');
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split('=');
+                if (decodeURIComponent(pair[0]) == variable) { return decodeURIComponent(pair[1]); }
+            }
+        }
+        var fillAuthors = function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/AuthorsApi",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                async: false,
+                success: function (data) {
+                    $(data).each(function () { $("#Book_AuthorId").append('<option value="' + this.id + '">' + this.fullName + '</option>'); });
+                }
+            });
+        }
+        var fillPHouses = function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/PHousesApi",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                async: false,
+                success: function (data) {
+                    $(data).each(function () { $("#SelectedPHouses").append('<option value="' + this.id + '">' + this.fullName + '</option>'); });
+                }
+            });
+        }
+
+        var fillBook = function (id) {
+            $.ajax({
+                type: "GET",
+                url: "/api/BooksApi/" + id,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("#Book_Id").val(data.id);
+                    $("#Book_Title").val(data.title);
+                    var date = (new Date(data.releaseDate)).toISOString().substr(0, 10);
+                    $("#Book_ReleaseDate").val(date);
+                    $("#Book_Genre").val(data.genre);
+                    $("#Book_Price").val(data.price);
+                    $("#Book_Rating").val(data.rating);
+                    $("#Book_AuthorId").val(data.authorId).trigger("change");
+                    $.ajax({
+                        type: "GET",
+                        url: "/api/BooksApi/" + id + "/GetPHouses",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            var phouselist = []
+                            $(data).each(function () { phouselist.push(this.id); });
+                            $("#SelectedPHouses").val(phouselist);
+                            $("#SelectedPhouses").trigger("change");
+                        }
+                    });
+                }
+            });
+        }
+
+        $("#button").click(function () {
+            var book = {
+                Id: $("#Book_Id").val(),
+                Title: $("#Book_Title").val(),
+                Genre: $("#Book_Genre").val(),
+                ReleaseDate: $("#Book_ReleaseDate").val(),
+                Price: $("#Book_Price").val(),
+                Rating: $("#Book_Rating").val(),
+                AuthorId: $("#Book_AuthorId").val()
+            }
+            var formData = {
+                Book: book,
+                SelectedPHouses: $("#SelectedPHouses").select2('val')
+            }
+            formData = JSON.stringify(formData);
+            console.log(formData);
+            $.ajax({
+                type: "PUT",
+                url: "/api/BooksApi/" + book.Id,
+                data: formData,
+                contentType: "application/json; charset=utf-8",
+                success: function (result) { window.location.href = "/Home/Books"; },
+                error: function (result) { console.log(result.responseText); }
+            });
+        });
+    </script>
+}

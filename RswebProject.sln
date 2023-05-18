@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32811.315
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RswebProject", "RswebProject\RswebProject.csproj", "{D085494C-41BC-4DD9-AF91-036C44A5A08B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D085494C-41BC-4DD9-AF91-036C44A5A08B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D085494C-41BC-4DD9-AF91-036C44A5A08B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D085494C-41BC-4DD9-AF91-036C44A5A08B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D085494C-41BC-4DD9-AF91-036C44A5A08B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DD5E47EA-ADBF-4326-837F-11931E8E8036}
+	EndGlobalSection
+EndGlobal
